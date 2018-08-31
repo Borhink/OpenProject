@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System;
 
 public class Node
 {
@@ -18,56 +19,55 @@ public class Node
         parent = _parent;
     }
 
+    public Node(Node src)
+    {
+        cost = src.cost;
+        heuristic = src.heuristic;
+        pos = src.pos;
+        parent = src.parent;
+    }
+
+    public static bool operator >(Node a, Node b)
+    {
+        if (a.getValue() > b.getValue())
+            return (true);
+        return (false);
+    }
+
+    public static bool operator <(Node b, Node a)
+    {
+        if (a.getValue() > b.getValue())
+            return (true);
+        return (false);
+    }
+
+    public float getValue()
+    {
+        return ((float)cost * 0.1f + heuristic);
+    }
+
 }
 
 public class PathFinder : MonoBehaviour {
+    static readonly float Step = 0.5f;
+    //static readonly float Halfstep = Step / 2;
+    static readonly Vector2[] Directions = { new Vector2(0, Step), new Vector2(Step, Step), new Vector2(Step, 0), new Vector2(Step, -Step), new Vector2(0, -Step), new Vector2(-Step, -Step), new Vector2(-Step, 0), new Vector2(-Step, Step) };
 
-    static readonly Vector2[] Directions = { new Vector2(0, 1).normalized, new Vector2(1, 1).normalized, new Vector2(1, 0).normalized, new Vector2(1, -1).normalized, new Vector2(0, -1).normalized, new Vector2(-1, -1).normalized, new Vector2(-1, 0).normalized, new Vector2(-1, 1).normalized };
-
-    [SerializeField]
-    private float _step = 0.5f;
     private Player _player;
     private List<Node> _opened = new List<Node>();
     private List<Node> _closed = new List<Node>();
 
+    public GameObject test;//DEBUG
+    List<GameObject> listy = new List<GameObject>();//DEBUG
+
     void Start()
     {
         _player = GetComponent<Player>();
-        /*_opened.Add(new Node(0, 1, new Vector2(1, 1)));
-        _opened.Add(new Node(2, 0, new Vector2(0.5f, 1), _opened.ElementAt(0)));
-        _opened.Add(new Node(1, 0, new Vector2(0.5f, 1), _opened.ElementAt(1)));
-        _opened = _opened.OrderBy(o => o.heuristic).ThenBy(o => o.cost).ToList();
-        _opened.Remove(_opened.First());
-        //_opened.Find(o => o.pos == cur.pos + (dir.normalized * 0.5f));
-        Node test = _opened.Find(o => o.pos == new Vector2(1, 1));
-        if (test != null)
-            Debug.Log("test: " + test.cost);
-        test = _opened.Find(o => o.pos == new Vector2(0.5f, 1));
-        if (test != null)
-            Debug.Log("test: " + test.cost);
-        else
-            Debug.Log("test not found");*/
-        Vector2 start = _player.transform.position;
-        Vector2 dest = new Vector2(6, 6);
-        Node node = new Node(0, (start - dest).sqrMagnitude, _player.transform.position);
-        List<Node> children = CreateChildren(node, dest);
-        StartCoroutine(testFunction(children));
-    }
-
-    IEnumerator testFunction(List<Node> children)
-    {
-        foreach (Node child in children)
-        {
-            yield return new WaitForSeconds(2);
-            Debug.Log("child pos: " + child.pos + ", heuristic: " + child.heuristic + ", cost: " + child.cost);
-            _player.transform.position = child.pos;
-        }
     }
 
     public bool CanWalk(Vector2 origin, Vector2 dir)
     {
-        dir = dir.normalized;
-        RaycastHit2D[] hits = Physics2D.CircleCastAll(origin, 0.25f, dir, _step);
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(origin, 0.25f, dir, 1);
         if (hits.Length > 0)
         {
             foreach (RaycastHit2D hit in hits)
@@ -79,37 +79,78 @@ public class PathFinder : MonoBehaviour {
         return (true);
     }
 
-    public bool FindPath(Vector2 dest)
-    {
-        Node node;
-        Vector2 start = _player.transform.position;
-
-        _opened.Add(new Node(0, (start - dest).sqrMagnitude, _player.transform.position));
-        while (_opened.Count > 0)
-        {
-            node = _opened.First();
-            if ((dest - node.pos).sqrMagnitude < _step * _step)
-                return (true);
-            _opened.Remove(_opened.First());
-            List<Node> children = CreateChildren(node, dest);
-            while (children.Count > 0)
-            {
-                children.Remove(children.First());
-            }
-        }
-        return (false);
-    }
-
     List<Node> CreateChildren(Node cur, Vector2 dest)
     {
         List<Node> children = new List<Node>();
 
-        foreach (Vector2 dir in Directions)
+        for (int i = 0; i < Directions.Count(); i++)
         {
-            Vector2 next = cur.pos + (dir * _step);
-            if (CanWalk(cur.pos, dir))
-                children.Add(new Node(cur.cost + 1, (next - dest).sqrMagnitude, next, cur));
+            Vector2 next = cur.pos + Directions[i];
+
+            if (CanWalk(cur.pos, Directions[i]) && cur.cost + 1 + i % 2 <= _player.energy)
+                children.Add(new Node(cur.cost + 1 + i % 2, (next - dest).sqrMagnitude, RoundToNearestHalf(next)));
         }
         return (children);
+    }
+
+    static public Vector2 RoundToNearestHalf(Vector2 vec)//RoundToLowerHalf
+    {
+        return (new Vector2(vec.x - (vec.x % Step), vec.y - (vec.y % Step)));
+    }
+
+    static public float NodeDistance(Vector2 vec)
+    {
+        return ((Mathf.Abs(vec.x) + Mathf.Abs(vec.y)) * 2);
+    }
+
+    public bool FindPath(Vector2 dest)
+    {
+        Node node, child, open, close;
+        Vector2 start = _player.transform.position;
+
+        _opened.Clear();//DEBUG
+        _closed.Clear();//DEBUG
+        foreach (GameObject go in listy)//DEBUG
+        {//DEBUG
+            Destroy(go);//DEBUG
+        }//DEBUG
+        listy.Clear();//DEBUG
+
+        _opened.Add(new Node(0, NodeDistance(start - dest), RoundToNearestHalf(_player.transform.position)));
+        if (NodeDistance(dest - start) > _player.energy)
+            return (false);
+        while (_opened.Count > 0)
+        {
+            node = _opened.First();
+            listy.Add(Instantiate(test, node.pos, Quaternion.identity));//DEBUG
+            if (NodeDistance(node.pos - start) <= _player.energy)
+            {
+                if ((dest - node.pos).sqrMagnitude < Step * Step)
+                    return (true);
+                List<Node> children = CreateChildren(node, dest);
+                while (children.Count > 0)
+                {
+                    child = children.First();
+                    open = _opened.Find(o => o.pos == child.pos);
+                    close = _closed.Find(o => o.pos == child.pos);
+                    if ((open != null && child > open) || (close != null && child > close))
+                        children.Remove(children.First());
+                    else
+                    {
+                        _opened.Add(new Node(child));
+                        if (open != null)
+                            _opened.Remove(open);
+                        _opened = _opened.OrderBy(o => o.getValue()).ToList();
+                        children.Remove(children.First());
+                    }
+                }
+            }
+            close = _closed.Find(o => o.pos == node.pos);
+            if (close != null)
+                _closed.Remove(close);
+            _closed.Add(new Node(node));
+            _opened.Remove(node);
+        }
+        return (false);
     }
 }

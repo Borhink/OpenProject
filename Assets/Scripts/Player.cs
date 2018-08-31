@@ -4,28 +4,62 @@ using UnityEngine;
 
 public class Player : MonoBehaviour {
 
-    [SerializeField]
-    private float _speed = 2;
-    private PathFinder _pf;
+    //[SerializeField]
+    public float hp = 100;
+    //private float mana = 20;
+    //[HideInInspector]
+    //private PathFinder _pf;
 
-	void Start () {
-        _pf = GetComponent<PathFinder>();
+    //Deplacement
+    public float speed = 2;
+    public float maxEnergy = 10;
+    public float energy;
+    public bool movementDist = false;
+    public GameObject movementCirclePrefab;
+    private GameObject _movementCircle;
+
+    //Sorts
+    private Spell _spell;
+
+    void Start () {
+        //_pf = GetComponent<PathFinder>();
+        _spell = GetComponent<Spell>();
+        energy = maxEnergy;
+        _movementCircle = Instantiate(movementCirclePrefab, transform);
+        if (!movementDist)
+            _movementCircle.SetActive(!_movementCircle.activeSelf);
 	}
-	
-	// Update is called once per frame
-	void FixedUpdate () {
-        if (Input.GetMouseButtonDown(0))
+
+    void Update()
+    {
+        energy += 0.25f * Time.deltaTime;
+        if (energy >= maxEnergy)
+            energy = maxEnergy;
+
+        if (movementDist)
+            _movementCircle.transform.localScale = new Vector3(energy * 2, energy * 2);
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+            _spell.SetActiveSpell(1);
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+            _spell.SetActiveSpell(2);
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+            _spell.SetActiveSpell(3);
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+            _spell.SetActiveSpell(4);
+        if (Input.GetKeyDown(KeyCode.Escape) && _spell.IsActiveSpell())
+            _spell.SetActiveSpell(0);
+
+        if (Input.GetKeyDown(KeyCode.M))
         {
-            /*Ray ray = camera.main.screenpointtoray(input.mouseposition);
-            raycasthit hit;
-            physics.Raycast(ray, out hit);*/
-            Vector2 dir = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
-            dir = dir.normalized;
-            if (_pf.CanWalk(transform.position, dir))
-                transform.Translate(dir * 0.5f);
-            else
-                Debug.Log("Cant walk !");
-            //transform.position = Vector2.MoveTowards(transform.position, Camera.main.ScreenToWorldPoint(Input.mousePosition), _speed * Time.fixedDeltaTime);
+            movementDist = !movementDist;
+            _movementCircle.SetActive(!_movementCircle.activeSelf);
+        }
+        if (Input.GetMouseButton(0))
+        {
+            Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            pos.z = transform.position.z;
+            MovementManager.mm.MovePlayer(this, pos);
         }
     }
 }

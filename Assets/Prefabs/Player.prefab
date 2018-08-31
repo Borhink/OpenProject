@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4543573856704102}
   - component: {fileID: 212805174105504128}
   - component: {fileID: 114133178002674316}
-  - component: {fileID: 114585014574635348}
+  - component: {fileID: 114497203685605536}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -36,7 +36,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1185718417942550}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.46, y: -2.54, z: -0.033203125}
+  m_LocalPosition: {x: 0, y: -3.2, z: -0.033203125}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -53,8 +53,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90a897abf397b0546bcb7df73d771bac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 4
---- !u!114 &114585014574635348
+  hp: 100
+  speed: 2
+  maxEnergy: 10
+  energy: 10
+  movementDist: 0
+  movementCirclePrefab: {fileID: 1088185729969692, guid: fe16a030f9619484cb5f039187baf064,
+    type: 2}
+--- !u!114 &114497203685605536
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -62,11 +68,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 1185718417942550}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5746edce5cbca874cba541d541a6519b, type: 3}
+  m_Script: {fileID: 11500000, guid: 385bac431889f4f4c80f48bd2ef393e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _step: 0.5
-  test: {fileID: 0}
+  spellIndex: 0
+  effectZonePrefab:
+  - {fileID: 1316069852241570, guid: d2c7d8758fb45624889d1de99e43b7bb, type: 2}
+  - {fileID: 1339328668639862, guid: 42436e09d2aca5843a78f0b86f28e935, type: 2}
+  - {fileID: 1437221976496626, guid: 0ac3b0870dd1c4347b677a1f5333d77f, type: 2}
+  effectZone: {fileID: 0}
+  range: 5
+  rangeZonePrefab: {fileID: 1308890117753230, guid: 1d43e9f63956a294ca631378486955f3,
+    type: 2}
+  _rangeZone: {fileID: 0}
 --- !u!212 &212805174105504128
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -80,7 +94,6 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
-  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:

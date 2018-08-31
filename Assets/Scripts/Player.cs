@@ -19,11 +19,11 @@ public class Player : MonoBehaviour {
     private GameObject _movementCircle;
 
     //Sorts
-    private Spell _spell;
+    private SpellCaster _spellcaster;
 
     void Start () {
         //_pf = GetComponent<PathFinder>();
-        _spell = GetComponent<Spell>();
+        _spellcaster = GetComponent<SpellCaster>();
         energy = maxEnergy;
         _movementCircle = Instantiate(movementCirclePrefab, transform);
         if (!movementDist)
@@ -40,15 +40,15 @@ public class Player : MonoBehaviour {
             _movementCircle.transform.localScale = new Vector3(energy * 2, energy * 2);
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
-            _spell.SetActiveSpell(1);
+            _spellcaster.SetActiveSpell(1);
         if (Input.GetKeyDown(KeyCode.Alpha2))
-            _spell.SetActiveSpell(2);
+            _spellcaster.SetActiveSpell(2);
         if (Input.GetKeyDown(KeyCode.Alpha3))
-            _spell.SetActiveSpell(3);
+            _spellcaster.SetActiveSpell(3);
         if (Input.GetKeyDown(KeyCode.Alpha4))
-            _spell.SetActiveSpell(4);
-        if (Input.GetKeyDown(KeyCode.Escape) && _spell.IsActiveSpell())
-            _spell.SetActiveSpell(0);
+            _spellcaster.SetActiveSpell(4);
+        if (Input.GetKeyDown(KeyCode.Escape) && _spellcaster.IsActiveSpell())
+            _spellcaster.SetActiveSpell(0);
 
         if (Input.GetKeyDown(KeyCode.M))
         {

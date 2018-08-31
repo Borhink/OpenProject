@@ -9,11 +9,12 @@ public class Spell : MonoBehaviour {
 
     public GameObject[] effectZonePrefab;
     public GameObject effectZone;
-
-    //Range
-    public float range = 5;
     public GameObject rangeZonePrefab;
     public GameObject _rangeZone;
+
+    //Spell Stats
+    public float range = 5;
+    public Vector3 offset = new Vector3(1.5f, 0);
 
     void Start () {
         _player = GetComponent<Player>();
@@ -54,6 +55,7 @@ public class Spell : MonoBehaviour {
             Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             pos.z = _player.transform.position.z;
             effectZone = Instantiate(effectZonePrefab[spellIndex - 1], pos, Quaternion.identity);
+            effectZone.transform.GetChild(0).localPosition = offset;
             effectZone.transform.rotation = LookAtCursor(pos);
         }
         else

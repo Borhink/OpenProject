@@ -9,7 +9,7 @@ public class SpellCaster : MonoBehaviour {
 
     public Spell[] spells;
     public GameObject[] effectZonePrefab;
-    private GameObject effectZone;
+    private GameObject _effectZone;
     public GameObject rangeZonePrefab;
     private GameObject _rangeZone;
     private Spell _selectedSpell;
@@ -18,6 +18,7 @@ public class SpellCaster : MonoBehaviour {
     {
         _player = GetComponent<Player>();
         _rangeZone = Instantiate(rangeZonePrefab, _player.transform);
+        _effectZone = transform.Find("EffectZone").gameObject;
         if (spellIndex == 0)
             _rangeZone.SetActive(!_rangeZone.activeSelf);
     }
@@ -29,13 +30,36 @@ public class SpellCaster : MonoBehaviour {
             Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             pos.z = _player.transform.position.z;
             if (Vector2.SqrMagnitude(pos - _player.transform.position) > _selectedSpell.range * _selectedSpell.range)
-                effectZone.SetActive(false);
+                _effectZone.SetActive(false);
             else
             {
-                effectZone.SetActive(true);
-                effectZone.transform.position = pos;
-                effectZone.transform.rotation = LookAtCursor(pos);
+                _effectZone.SetActive(true);
+                _effectZone.transform.position = pos;
+                _effectZone.transform.rotation = LookAtCursor(pos);
             }
+        }
+    }
+
+    public void CreateEffectZone()
+    {
+        Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        pos.z = _player.transform.position.z;
+
+        foreach (EffectZone ez in _selectedSpell.zones)
+        {
+            GameObject newZone = Instantiate(effectZonePrefab[(int)ez.type], _effectZone.transform);
+            newZone.transform.localScale = ez.scale;
+            newZone.transform.localPosition = ez.offset;
+            newZone.transform.localEulerAngles = ez.rotation;
+        }
+        _effectZone.transform.rotation = LookAtCursor(pos);
+    }
+
+    public void DeleteEffectZone()
+    {
+        foreach (Transform child in _effectZone.transform)
+        {
+            Destroy(child.gameObject);
         }
     }
 
@@ -45,20 +69,14 @@ public class SpellCaster : MonoBehaviour {
             spellIndex = 0;
         else if (index >= 0 && index <= spells.Length)
             spellIndex = index;
-        if (effectZone)
-            Destroy(effectZone);
+        if (_effectZone)
+            DeleteEffectZone();
         if (spellIndex > 0 && spellIndex <= spells.Length)
         {
             _selectedSpell = spells[spellIndex - 1];
             _rangeZone.SetActive(true);
             _rangeZone.transform.localScale = new Vector3(_selectedSpell.range * 2, _selectedSpell.range * 2);
-            Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            pos.z = _player.transform.position.z;
-            effectZone = Instantiate(effectZonePrefab[(int)_selectedSpell.zoneType], pos, Quaternion.identity);
-            Transform child = effectZone.transform.GetChild(0);
-            child.localScale = _selectedSpell.scale;
-            child.localPosition = _selectedSpell.offset;
-            effectZone.transform.rotation = LookAtCursor(pos);
+            CreateEffectZone();
         }
         else
         {

@@ -5,14 +5,16 @@ using UnityEngine;
 public class Player : MonoBehaviour {
 
     //[SerializeField]
+    public float maxLife = 100; //Player's max life
     public float life = 100; //Player's life
-    public float mana = 20; //Player's mana
+    public float maxMana = 20; //Player's max mana
+    public float mana; //Player's mana
+    public float maxEnergy = 10; //Player's max energy (in unit)
+    public float energy; //Player's current energy (in unit)
     public float team = 1;
 
     //Deplacement
     public float speed = 2; //Player's speed (in unit/sec)
-    public float maxEnergy = 10; //Player's max energy (in unit)
-    public float energy; //Player's current energy (in unit)
     public bool movementDist = false; //Show movement's range
     public GameObject movementCirclePrefab;
     private GameObject _movementCircle;
@@ -23,6 +25,8 @@ public class Player : MonoBehaviour {
     void Start () {
         _spellcaster = GetComponentInChildren<SpellCaster>();
         energy = maxEnergy;
+        mana = maxMana;
+        life = maxLife;
         _movementCircle = Instantiate(movementCirclePrefab, transform);
         if (!movementDist)
             _movementCircle.SetActive(!_movementCircle.activeSelf);
@@ -33,6 +37,9 @@ public class Player : MonoBehaviour {
         energy += 0.25f * Time.deltaTime;
         if (energy >= maxEnergy)
             energy = maxEnergy;
+        mana += 0.5f * Time.deltaTime;
+        if (mana >= maxMana)
+            mana = maxMana;
 
         if (movementDist)
             _movementCircle.transform.localScale = new Vector3(energy * 2, energy * 2);
@@ -59,5 +66,34 @@ public class Player : MonoBehaviour {
             pos.z = transform.position.z;
             MovementManager.mm.MovePlayer(this, pos);
         }
+    }
+
+    public void AddMana(int value)
+    {
+        mana += value;
+        if (mana < 0)
+            mana = 0;
+        else if (mana > maxMana)
+            mana = maxMana;
+    }
+
+    public void Heal(int value)
+    {
+        life += value;
+        if (life > maxLife)
+        {
+            life = maxLife;
+        }
+    }
+
+    public bool TakeDamage(int value)
+    {
+        life -= value;
+        if (life < 0)
+        {
+            life = 0;
+            return (false);
+        }
+        return (true);
     }
 }

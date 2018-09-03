@@ -15,4 +15,10 @@ public class TriggerParent : MonoBehaviour {
         if (spellCaster)
             spellCaster.OnEffectZoneEnter(collision, GetComponent<EffectZone>());
     }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (spellCaster)
+            spellCaster.OnEffectZoneExit(collision, GetComponent<EffectZone>());
+    }
 }

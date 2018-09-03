@@ -148,12 +148,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90a897abf397b0546bcb7df73d771bac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxLife: 100
   life: 100
+  maxMana: 20
   mana: 20
-  team: 1
-  speed: 2
   maxEnergy: 10
   energy: 10
+  team: 1
+  speed: 2
   movementDist: 0
   movementCirclePrefab: {fileID: 1088185729969692, guid: fe16a030f9619484cb5f039187baf064,
     type: 2}
@@ -172,6 +174,7 @@ MonoBehaviour:
   spells:
   - {fileID: 114613426045760234, guid: bc74bcfcabd2f4846b87419aeedea50c, type: 2}
   - {fileID: 114285314279047498, guid: 6107a6844e7431249b960b6e9965e473, type: 2}
+  - {fileID: 114791937640707316, guid: 2c1e5b124d4e39f4882e6c1f656d0ed9, type: 2}
   effectZonePrefab:
   - {fileID: 1316069852241570, guid: d2c7d8758fb45624889d1de99e43b7bb, type: 2}
   - {fileID: 1339328668639862, guid: 42436e09d2aca5843a78f0b86f28e935, type: 2}

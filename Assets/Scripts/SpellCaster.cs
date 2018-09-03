@@ -54,7 +54,18 @@ public class SpellCaster : MonoBehaviour {
     public void LaunchSpell()
     {
         launchingSpell = false;
-        //foreach ()
+        _player.AddMana(-5);
+        foreach (SpellEffect se in _selectedSpell.effects)
+        {
+            int value = Random.Range(se.min, se.max + 1);
+            foreach (Player player in triggeredPlayers)
+            {
+                if (se.type == SpellEffect.Type.Damage)
+                    player.TakeDamage(value);
+                if (se.type == SpellEffect.Type.Heal)
+                    player.Heal(value);
+            }
+        }
         SetActiveSpell(0);
     }
 
@@ -91,7 +102,7 @@ public class SpellCaster : MonoBehaviour {
             spellIndex = index;
         if (_effectZone.transform.childCount > 0)
             DeleteEffectZone();
-        if (spellIndex > 0 && spellIndex <= spells.Length)
+        if (spellIndex > 0 && spellIndex <= spells.Length && _player.mana >= spells[spellIndex - 1].mana)
         {
             _selectedSpell = spells[spellIndex - 1];
             _rangeZone.SetActive(true);
@@ -100,6 +111,7 @@ public class SpellCaster : MonoBehaviour {
         }
         else
         {
+            spellIndex = 0;
             _rangeZone.SetActive(false);
         }
     }
@@ -128,6 +140,18 @@ public class SpellCaster : MonoBehaviour {
         {
             triggeredPlayers.Add(other);
             other.gameObject.GetComponent<SpriteRenderer>().color = new Color(0.8f, 0.5f, 0);
+        }
+    }
+
+    public void OnEffectZoneExit(Collider2D collision, EffectZone zone)
+    {
+        Player other = collision.GetComponent<Player>();
+        if (other == null)
+            return;
+        if (triggeredPlayers.Contains(other))
+        {
+            triggeredPlayers.Remove(other);
+            other.gameObject.GetComponent<SpriteRenderer>().color = Color.white;
         }
     }
 }

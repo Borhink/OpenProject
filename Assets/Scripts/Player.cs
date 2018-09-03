@@ -5,25 +5,23 @@ using UnityEngine;
 public class Player : MonoBehaviour {
 
     //[SerializeField]
-    public float hp = 100;
-    //private float mana = 20;
-    //[HideInInspector]
-    //private PathFinder _pf;
+    public float life = 100; //Player's life
+    public float mana = 20; //Player's mana
+    public float team = 1;
 
     //Deplacement
-    public float speed = 2;
-    public float maxEnergy = 10;
-    public float energy;
-    public bool movementDist = false;
+    public float speed = 2; //Player's speed (in unit/sec)
+    public float maxEnergy = 10; //Player's max energy (in unit)
+    public float energy; //Player's current energy (in unit)
+    public bool movementDist = false; //Show movement's range
     public GameObject movementCirclePrefab;
     private GameObject _movementCircle;
 
     //Sorts
-    private SpellCaster _spellcaster;
+    private SpellCaster _spellcaster; //Class to launch spells
 
     void Start () {
-        //_pf = GetComponent<PathFinder>();
-        _spellcaster = GetComponent<SpellCaster>();
+        _spellcaster = GetComponentInChildren<SpellCaster>();
         energy = maxEnergy;
         _movementCircle = Instantiate(movementCirclePrefab, transform);
         if (!movementDist)
@@ -55,7 +53,7 @@ public class Player : MonoBehaviour {
             movementDist = !movementDist;
             _movementCircle.SetActive(!_movementCircle.activeSelf);
         }
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButton(0) && _spellcaster.IsActiveSpell() == false)
         {
             Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             pos.z = transform.position.z;

@@ -55,6 +55,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   range: 7
+  cooldown: 1
+  mana: 8
+  effects: []
   zones:
   - {fileID: 114779145054177468}
   - {fileID: 114548541325894000}
@@ -74,6 +77,7 @@ MonoBehaviour:
   rotation: {x: 0, y: 0, z: -22.5}
   scale: {x: 1.5, y: 1.5, z: 0}
   type: 1
+  target: 7
 --- !u!114 &114779145054177468
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -89,6 +93,7 @@ MonoBehaviour:
   rotation: {x: 0, y: 0, z: 22.5}
   scale: {x: 1.5, y: 1.5, z: 0}
   type: 1
+  target: 7
 --- !u!114 &114847186422583396
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -104,3 +109,4 @@ MonoBehaviour:
   rotation: {x: 0, y: 0, z: 0}
   scale: {x: 3, y: 1, z: 0}
   type: 2
+  target: 7

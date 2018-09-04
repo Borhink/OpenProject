@@ -13,6 +13,9 @@ public class Player : MonoBehaviour {
     public float energy; //Player's current energy (in unit)
     public float team = 1;
 
+    //DEBUG
+    public bool controller = false;
+
     //Deplacement
     public float speed = 2; //Player's speed (in unit/sec)
     public bool movementDist = false; //Show movement's range
@@ -34,6 +37,10 @@ public class Player : MonoBehaviour {
 
     void Update()
     {
+        //DEBUG
+        if (Input.GetKeyDown(KeyCode.A))
+            controller = !controller;
+
         energy += 0.25f * Time.deltaTime;
         if (energy >= maxEnergy)
             energy = maxEnergy;
@@ -44,6 +51,10 @@ public class Player : MonoBehaviour {
         if (movementDist)
             _movementCircle.transform.localScale = new Vector3(energy * 2, energy * 2);
 
+        //DEBUG
+        if (!controller)
+            return;
+
         if (Input.GetKeyDown(KeyCode.Alpha1))
             _spellcaster.SetActiveSpell(1);
         if (Input.GetKeyDown(KeyCode.Alpha2))
@@ -52,8 +63,6 @@ public class Player : MonoBehaviour {
             _spellcaster.SetActiveSpell(3);
         if (Input.GetKeyDown(KeyCode.Alpha4))
             _spellcaster.SetActiveSpell(4);
-        if (Input.GetKeyDown(KeyCode.Escape) && _spellcaster.IsActiveSpell())
-            _spellcaster.SetActiveSpell(0);
 
         if (Input.GetKeyDown(KeyCode.M))
         {

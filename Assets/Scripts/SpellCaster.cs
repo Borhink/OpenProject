@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class SpellCaster : MonoBehaviour {
 
@@ -14,7 +15,7 @@ public class SpellCaster : MonoBehaviour {
     private GameObject _rangeZone; 
     private Spell _selectedSpell; //Current selected spell
     private bool launchingSpell = false;
-    private Vector3 lauchingPos;
+    private Vector3 startPos;
     HashSet<Player> triggeredPlayers;
 
     void Start()
@@ -29,11 +30,16 @@ public class SpellCaster : MonoBehaviour {
 
     void Update()
     {
+        //DEBUG
+        if (!_player.controller)
+            return;
+
         if (IsActiveSpell())
         {
             Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             pos.z = _player.transform.position.z;
-            if (Vector2.SqrMagnitude(pos - _player.transform.position) > _selectedSpell.range * _selectedSpell.range)
+
+            if (InLineOfSight(pos) == false)
                 _effectZone.SetActive(false);
             else
             {
@@ -41,32 +47,66 @@ public class SpellCaster : MonoBehaviour {
                 _effectZone.transform.position = pos;
                 _effectZone.transform.rotation = LookAtCursor(pos);
             }
+
             if (Input.GetMouseButtonDown(0))
             {
                 launchingSpell = true;
-                lauchingPos = pos;
+                startPos = pos;
             }
-            if (Input.GetMouseButtonUp(0) && launchingSpell && Vector3.SqrMagnitude(lauchingPos - pos) < 0.02f)
-                LaunchSpell();
+            if (Input.GetMouseButtonUp(0) && launchingSpell)
+                LaunchSpell(pos);
+            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(1))
+                StopSpellLaunching();
         }
     }
 
-    public void LaunchSpell()
+    bool InLineOfSight(Vector3 pos)
     {
-        launchingSpell = false;
-        _player.AddMana(-5);
-        foreach (SpellEffect se in _selectedSpell.effects)
+        Vector2 dir = pos - _player.transform.position;
+        float dist = Vector2.Distance(pos, _player.transform.position);
+        float firstDist = 0;
+        bool first = true;
+
+        if (dist <= _selectedSpell.range)
         {
-            int value = Random.Range(se.min, se.max + 1);
-            foreach (Player player in triggeredPlayers)
+            RaycastHit2D[] hits = Physics2D.CircleCastAll(_player.transform.position, 0.03f, dir, dist, ~LayerMask.GetMask("EffectZone")).OrderBy(h => h.distance).ToArray();
+            foreach (RaycastHit2D hit in hits)
             {
-                if (se.type == SpellEffect.Type.Damage)
-                    player.TakeDamage(value);
-                if (se.type == SpellEffect.Type.Heal)
-                    player.Heal(value);
+                if (hit.collider.gameObject != _player.gameObject)
+                {
+                    if (first && hit.collider.gameObject.GetComponent<Player>() != null)
+                    {
+                        first = false;
+                        firstDist = Vector2.Distance(hit.transform.position, _player.transform.position) + 0.25f;
+                    }
+                    else
+                        return (false);
+                }
+            }
+            if (first || (!first && dist <= firstDist))
+                return (true);
+        }
+        return (false);
+    }
+
+    public void LaunchSpell(Vector3 pos)
+    {
+        if (InLineOfSight(pos))
+        {
+            _player.AddMana(-5);
+            foreach (SpellEffect se in _selectedSpell.effects)
+            {
+                int value = Random.Range(se.min, se.max + 1);
+                foreach (Player player in triggeredPlayers)
+                {
+                    if (se.type == SpellEffect.Type.Damage)
+                        player.TakeDamage(value);
+                    if (se.type == SpellEffect.Type.Heal)
+                        player.Heal(value);
+                }
             }
         }
-        SetActiveSpell(0);
+        StopSpellLaunching();
     }
 
     public void CreateEffectZone()
@@ -128,6 +168,17 @@ public class SpellCaster : MonoBehaviour {
         return (Quaternion.AngleAxis(angle, Vector3.forward));
     }
 
+    RaycastHit2D GetMouseHit()
+    {
+        return (Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero, 1.0f, ~LayerMask.GetMask("EffectZone")));
+    }
+
+    void StopSpellLaunching()
+    {
+        launchingSpell = false;
+        SetActiveSpell(0);
+    }
+
     public void OnEffectZoneEnter(Collider2D collision, EffectZone zone)
     {
         Player other = collision.GetComponent<Player>();
@@ -155,3 +206,11 @@ public class SpellCaster : MonoBehaviour {
         }
     }
 }
+
+/*
+ 
+Cooldown
+Ligne de vue                    OK
+Impossible lancer obstacle      OK
+
+ */

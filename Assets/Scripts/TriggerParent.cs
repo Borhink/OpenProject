@@ -10,7 +10,7 @@ public class TriggerParent : MonoBehaviour {
         spellCaster = GetComponentInParent<SpellCaster>();
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerStay2D(Collider2D collision)
     {
         if (spellCaster)
             spellCaster.OnEffectZoneEnter(collision, GetComponent<EffectZone>());

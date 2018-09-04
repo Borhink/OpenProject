@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 114358325340470648}
   - component: {fileID: 114988708039079124}
   - component: {fileID: 50325112976233018}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cone
   m_TagString: EffectZone
   m_Icon: {fileID: 0}

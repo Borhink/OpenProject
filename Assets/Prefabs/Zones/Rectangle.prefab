@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 114341838562219646}
   - component: {fileID: 114461214356682200}
   - component: {fileID: 50460458178033952}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Rectangle
   m_TagString: EffectZone
   m_Icon: {fileID: 0}

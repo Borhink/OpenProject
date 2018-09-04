@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 114460544261914748}
   - component: {fileID: 114877651471252700}
   - component: {fileID: 50016886237661914}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Circle
   m_TagString: EffectZone
   m_Icon: {fileID: 0}
